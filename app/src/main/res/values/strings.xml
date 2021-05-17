@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">KumkangChangyeong</string>
+    <!-- <string name="service_address">http://211.245.239.53:2222/Service/json/</string>-->
+    <string name="service_address">http://211.245.239.53:3334/Service/json/</string> <!-- 접속할 서버를 string파일에 등록한다. -->
+</resources>
