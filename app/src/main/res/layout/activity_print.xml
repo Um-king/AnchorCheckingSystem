@@ -164,7 +164,7 @@
         </LinearLayout>
 
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -178,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/border_table"
-                android:stretchColumns="*">
+                android:stretchColumns="*"> <!--stretchColumns="1,2,3" : Column의 데이터 폭에 알아서 맞춤-->
 
                 <TableRow
                     android:layout_width="match_parent"
@@ -217,7 +217,7 @@
 
             </TableLayout>
 
-        </LinearLayout>
+        </ScrollView>
 
 
     </LinearLayout>

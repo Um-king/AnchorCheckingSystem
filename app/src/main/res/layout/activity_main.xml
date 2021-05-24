@@ -111,7 +111,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:popupBackground="@color/white"
+                    android:popupBackground="@color/black"
                     android:spinnerMode="dropdown"
                     android:textColor="@color/black"
                     android:background="@drawable/background_spinner"/>
@@ -166,7 +166,7 @@
                 android:layout_weight="9"
                 android:orientation="vertical"
                 android:weightSum="8"
-               >
+                >
 
                 <TextView
                     android:id="@+id/txtAnchor"
@@ -178,9 +178,7 @@
                     android:textColor="#8C8C8C"
                     android:textSize="12sp"
                     android:paddingBottom="5dp"
-                    android:layout_weight="0.5"
-
-                    />
+                    android:layout_weight="0.5"/>
                 <!--android:background="@drawable/border3"-->
 
                 <LinearLayout
