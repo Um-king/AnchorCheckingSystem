@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,8 @@ public class BlankFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public View v;
+    private View v;
+
 
     public BlankFragment() {
         // Required empty public constructor
@@ -53,29 +55,39 @@ public class BlankFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (getArguments() != null) {
+                mParam1 = getArguments().getString(ARG_PARAM1);
+                mParam2 = getArguments().getString(ARG_PARAM2);
+            }
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_blank, container, false);
+            Log.d("message","CreateView");
 
-        //LinearLayout linearLayout
+            // Inflate the layout for this fragment
+            v = inflater.inflate(R.layout.fragment_blank, container, false);
+            //v = inflater.inflate(R.layout.fragment_blank, null);
 
-        return v;
-    }
+           //LinearLayout linearLayout = (LinearLayout) v.findViewById(R.id.fragment_btn1);
+           //LinearLayout linearLayout1 = (LinearLayout) v.findViewById(R.id.fragment_btn2);
+           //LinearLayout linearLayout2 = (LinearLayout) v.findViewById(R.id.fragment_btn3);
+           //LinearLayout linearLayout3 = (LinearLayout) v.findViewById(R.id.fragment_btn4);
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+           return v;
+        }
+
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-    }
+        Log.d("message","ActivityCreated");
+
+        }
+
 }

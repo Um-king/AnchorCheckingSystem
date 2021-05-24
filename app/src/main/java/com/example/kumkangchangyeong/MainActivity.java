@@ -156,8 +156,6 @@ public class MainActivity extends AppCompatActivity {
     public void MakeCameraButton() {
 
         ViewPager mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.removeAllViews();
-        //MainPagerAdapter madpter = new MainPagerAdapter(getSupportFragmentManager());
         FragmentAdapter madpter = new FragmentAdapter(getSupportFragmentManager());
         mPager.setAdapter(madpter);
 
@@ -176,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
                 fragment = mData.get(fCount++);
                 btnDrowCount += 20;
             }
-
-
 
             if((i + 19 - btnDrowCount)/5 == 0)
                 linearLayout = (LinearLayout) fragment.getView().findViewById(R.id.fragment_btn1);
@@ -278,116 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // 카메라 버튼을 생성한다.
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public void MakeCameraButton2() {
 
-        TableLayout tableLayout = (TableLayout) findViewById(R.id.table);
-        TableRow tableRow = null;
-
-        // 버튼 선언
-        for(int i = 1; i <= anchorCount; i++) {
-
-            if(i % 5 == 1){
-                tableRow = new TableRow(this);
-                TableLayout.LayoutParams params = new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                params.weight = 1;
-                params.setMargins(10,0,10,0);
-                tableRow.setLayoutParams(params);
-
-                tableLayout.addView(tableRow);
-            }
-
-            Button btn = new Button(this);
-            btn.setId(i);
-
-            if(!savebtnList.contains(i)) {
-                Drawable roundDrawable = getResources().getDrawable(R.drawable.roundbtn); // xml파일을 통해 원으로 그린다.
-                btn.setBackground(roundDrawable);
-            }
-            else {
-                Drawable roundDrawable = getResources().getDrawable(R.drawable.saveroundbtn); // xml파일을 통해 원으로 그린다.
-                btn.setBackground(roundDrawable);
-            }
-
-
-            btn.setText(String.valueOf(i));
-            tableRow.addView(btn);
-
-
-            //원본
-            TableRow.LayoutParams params = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            //params.height = height;
-            //params.width = 0;
-            params.weight = 1;
-            params.setMargins(10,10,10,10);
-            btn.setLayoutParams(params);
-
-            btnList.put(String.valueOf(i), btn);
-
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    //  앙카가 저장된 정보가 없다면
-                    if(!savebtnList.contains(btnNo)) {
-                        // 이전 버튼의 색상을 변경
-                        Button prebtn = btnList.get(String.valueOf(btnNo));
-
-                        Drawable roundDrawable = getResources().getDrawable(R.drawable.roundbtn); // xml파일을 통해 원으로 그린다. (이전 선택 버튼을 원상태로)
-                        prebtn.setBackground(roundDrawable);
-                    }
-
-                    else{
-                        Button nowbtn = btnList.get(String.valueOf(btnNo));
-                        Drawable roundDrawable = getResources().getDrawable(R.drawable.saveroundbtn); // xml파일을 통해 원으로 그린다. (클릭한 버튼을 선택상태로)
-                        nowbtn.setBackground(roundDrawable);
-                    }
-
-                    btnNo = btn.getId();
-
-                    //// 현재 선택한 앙카가 이미 등록된 앙카번호라면
-                    //if(savebtnList.contains(btnNo)) {
-                    //    Button nowbtn = btnList.get(String.valueOf(btnNo));
-                    //    Drawable roundDrawable = getResources().getDrawable(R.drawable.saveroundbtn); // xml파일을 통해 원으로 그린다. (클릭한 버튼을 선택상태로)
-                    //    nowbtn.setBackground(roundDrawable);
-                    //}
-
-                    //else {
-                    //    // 선택 버튼의 색상을 변경
-                    //    Button nowbtn = btnList.get(String.valueOf(btnNo));
-                    //    Drawable roundDrawable = getResources().getDrawable(R.drawable.selectroundbtn); // xml파일을 통해 원으로 그린다. (클릭한 버튼을 선택상태로)
-                    //    nowbtn.setBackground(roundDrawable);
-                    //}
-
-                    // 선택 버튼의 색상을 변경
-                    Button nowbtn = btnList.get(String.valueOf(btnNo));
-                    Drawable roundDrawable = getResources().getDrawable(R.drawable.selectroundbtn); // xml파일을 통해 원으로 그린다. (클릭한 버튼을 선택상태로)
-                    nowbtn.setBackground(roundDrawable);
-
-                    TextView textView = (TextView) findViewById(R.id.txtSelectNo);
-                    textView.setText("✔선택한 앙카 번호: " + btnNo + "번");
-
-                    Intent cameraApp = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // camera Application을 실행 -> Intent를 통해 카메라를 불러온다.
-                    startActivityForResult(cameraApp, 101);
-                }
-            });
-        }
-
-        // linerlayout에 남는 공간을 빈칸으로 채워준다. ->weight값 때문에
-//        int anchorbutton = (30-anchorCount) % 5;
-//        for(int i = 0; i < anchorbutton; i++) {
-//            Button btn = new Button(this);
-//            Drawable roundDrawable = getResources().getDrawable(R.drawable.roundbtn); // xml파일을 통해 원으로 그린다.
-//            btn.setBackground(roundDrawable);
-//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
-//            params.weight = 1;
-//            params.setMargins(10,10,10,10);
-//            btn.setLayoutParams(params);
-//            btn.setVisibility(View.INVISIBLE); // 버튼 숨기기
-//            linearLayout.addView(btn);
-//        }
-    }
 
     @Override // 카메라 촬영 시 onActivityResult를 통해 사진을 가져온다.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -555,13 +442,9 @@ public class MainActivity extends AppCompatActivity {
         public FragmentAdapter(@NonNull FragmentManager fm) {
             super(fm);
 
-            mData = new ArrayList<>();
+            mData = new ArrayList<Fragment>();
 
             tabCount = anchorCount / 20;
-            if(anchorCount == 0) {
-                mData.add(new BlankFragment());
-                return;
-            }
             if(anchorCount % 20 != 0)
                 tabCount += 1;
 
