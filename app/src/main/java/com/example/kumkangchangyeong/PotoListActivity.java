@@ -28,6 +28,9 @@ public class PotoListActivity extends AppCompatActivity{
     public int btnNo;
     public Bitmap bitmap;
     public String imageFile;
+    public String locationNo;
+    public String dongNo;
+    public String floor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,9 @@ public class PotoListActivity extends AppCompatActivity{
         bitmap = (Bitmap) intent.getExtras().get("imageView");
         btnNo = (int) intent.getExtras().get("btnNo");
         imageFile = (String) intent.getExtras().get("img");
+        locationNo = (String) intent.getExtras().get("locationNo");
+        dongNo = (String) intent.getExtras().get("dongNo");
+        floor = (String) intent.getExtras().get("floor");
 
         ImageView imageView = (ImageView) findViewById(R.id.anchorimg);
         imageView.setImageBitmap(bitmap);
@@ -132,6 +138,12 @@ public class PotoListActivity extends AppCompatActivity{
         values.put("Image", imageFile);
         values.put("PhoneNumber", users.PhoneNumber);
         values.put("AnchorNo", btnNo);
+        values.put("LocationNo", locationNo);
+        values.put("DongNo", dongNo);
+        if(floor.contains("(완료)"))
+            floor = floor.replace("(완료)", "");
+        values.put("Floor", floor);
+
 
         SetPicture gsod = new SetPicture(url, values);
         gsod.execute();

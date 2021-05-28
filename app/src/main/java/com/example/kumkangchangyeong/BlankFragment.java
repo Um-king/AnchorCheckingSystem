@@ -1,10 +1,12 @@
 package com.example.kumkangchangyeong;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -30,7 +32,10 @@ public class BlankFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private View v;
+    public LinearLayout linearLayout;
+    public LinearLayout linearLayout1;
+    public LinearLayout linearLayout2;
+    public LinearLayout linearLayout3;
 
 
     public BlankFragment() {
@@ -57,37 +62,47 @@ public class BlankFragment extends Fragment {
 
 
     @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if (getArguments() != null) {
-                mParam1 = getArguments().getString(ARG_PARAM1);
-                mParam2 = getArguments().getString(ARG_PARAM2);
-            }
+    public void onCreate(Bundle savedInstanceState) {
+        //onAttach(getContext());
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+        //activity.setContentView(R.layout.fragment_blank);
+    }
 
-            Log.d("message","CreateView");
 
-            // Inflate the layout for this fragment
-            v = inflater.inflate(R.layout.fragment_blank, container, false);
-            //v = inflater.inflate(R.layout.fragment_blank, null);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-           //LinearLayout linearLayout = (LinearLayout) v.findViewById(R.id.fragment_btn1);
-           //LinearLayout linearLayout1 = (LinearLayout) v.findViewById(R.id.fragment_btn2);
-           //LinearLayout linearLayout2 = (LinearLayout) v.findViewById(R.id.fragment_btn3);
-           //LinearLayout linearLayout3 = (LinearLayout) v.findViewById(R.id.fragment_btn4);
+        Log.d("message", "CreateView");
 
-           return v;
-        }
+        //Log.d("message", v == null ? "null" : "not null");
 
-        @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_blank, container, false);
+
+        linearLayout = (LinearLayout) rootView.findViewById(R.id.fragment_btn1);
+        linearLayout1 = (LinearLayout) rootView.findViewById(R.id.fragment_btn2);
+        linearLayout2 = (LinearLayout) rootView.findViewById(R.id.fragment_btn3);
+        linearLayout3 = (LinearLayout) rootView.findViewById(R.id.fragment_btn4);
+
+        return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("message","ActivityCreated");
+        Log.d("message", "ActivityCreated");
 
-        }
+    }
 
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("message", "onDestroy");
+    }
 }

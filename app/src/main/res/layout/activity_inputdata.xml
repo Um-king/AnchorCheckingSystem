@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="20">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:background="@drawable/b2"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="18"
+        android:background="@drawable/borderline"
+        android:orientation="vertical"
+        android:weightSum="10">
+
+        <TextView
+            android:id="@+id/txtInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="기초정보를 입력하세요"
+            android:textColor="#000000"
+            android:textSize="16dp"
+            android:textStyle="bold"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:background="#F6F6F6"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F6F6F6"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:weightSum="10">
+
+                <TextView
+                    android:id="@+id/txtWorksOrderNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:drawableLeft="@drawable/place"
+                    android:drawablePadding="5dp"
+                    android:gravity="center_vertical"
+                    android:text="현장명"
+                    android:textColor="#000"
+                    android:textSize="15dp" />
+
+                <TextView
+                android:id="@+id/txtDong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:text=" ① 동"
+                android:textSize="15dp"
+                android:textColor="#000" />
+
+            <TextView
+                android:id="@+id/txtFloor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:text=" ② 층"
+                android:textSize="15dp"
+                android:textColor="#000" />
+
+            <TextView
+                android:id="@+id/txtSaveAnchorCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:text=" ③ 앙카 개수 등록"
+                android:textSize="15dp"
+                android:textColor="#000" />
+
+            <TextView
+                android:id="@+id/txtpeople"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:text=" ④ 작업자 등록"
+                android:textSize="15dp"
+                android:textColor="#000" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:weightSum="2">
+
+
+            <Button
+                android:id="@+id/showImg"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/returnbtn"
+                android:onClick="onOKButtonClick"
+                android:padding="5dp"
+                android:text="작업 등록하기"
+                android:textSize="20dp" />
+            <Button
+                android:id="@+id/cancelBtn"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:background="@drawable/canclebtn"
+                android:onClick="onCancleButtonClick"
+                android:layout_marginRight="25dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginBottom="10dp"
+                android:text="돌아가기"
+                android:padding="5dp"
+                android:textSize="20dp"
+                android:textColor="#474747"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:background="@drawable/b1">
+
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

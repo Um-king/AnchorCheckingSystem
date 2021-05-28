@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:background="@drawable/b2"
-        android:orientation="vertical"/>
-
+        android:orientation="vertical"></LinearLayout>
 
     <LinearLayout
         android:orientation="vertical"
@@ -45,84 +44,58 @@
                     android:weightSum="4">
 
                     <TextView
-                        android:id="@+id/txtWorksOrderNo"
+                        android:id="@+id/txtWorksOrderNo1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.5"
+                        android:text="현장명"
+                        android:gravity="center_vertical"
                         android:drawableLeft="@drawable/place"
                         android:drawablePadding="5dp"
-                        android:gravity="center_vertical"
-                        android:text="현장명"
                         android:textColor="#000" />
+
 
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="2.5"
                         android:orientation="horizontal"
-                        android:weightSum="2">
+                        android:layout_weight="2.5">
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:orientation="vertical"
                             android:weightSum="2">
 
                             <TextView
-                                android:id="@+id/txtDong"
+                                android:id="@+id/txtDong1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:gravity="center_vertical"
                                 android:text=" ① 동"
+                                android:gravity="center_vertical"
                                 android:textColor="#000" />
 
                             <TextView
-                                android:id="@+id/txtFloor"
+                                android:id="@+id/txtFloor1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:gravity="center_vertical"
                                 android:text=" ② 층"
-                                android:textColor="#000" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:weightSum="2">
-
-                            <TextView
-                                android:id="@+id/txtSaveAnchorCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:gravity="center_vertical"
-                                android:text=" ③ 등록 앙카 개수"
-                                android:textColor="#000" />
-
-                            <TextView
-                                android:id="@+id/txtNotSaveAnchorCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center_vertical"
-                                android:text=" ④ 미등록 앙카 개수"
                                 android:textColor="#000" />
 
                         </LinearLayout>
 
 
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:layout_weight="1">
 
                         </LinearLayout>
 
@@ -140,7 +113,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/imvQR"
+                    android:id="@+id/imvQR1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:adjustViewBounds="true"
@@ -165,77 +138,30 @@
             android:layout_gravity="center"
             android:layout_weight="0.5"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@drawable/borderline">
 
             <TextView
-                android:id="@+id/txtInput"
+                android:id="@+id/txtInput1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="등록 앙카 현황"
+                android:text="Anchor Number : "
                 android:textColor="#000000"
                 android:textSize="15dp"
                 android:textStyle="bold"/>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="9.5"
-            android:weightSum="5"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:orientation="horizontal"
-                android:weightSum="10">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:background="@drawable/border_row"
-                    android:gravity="center"
-                    android:text="Anchor 번호"
-                    android:textColor="#fff" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:background="@drawable/border_row"
-                    android:gravity="center"
-                    android:text="등록일자"
-                    android:textColor="#fff" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="3"
-                    android:background="@drawable/border_row"
-                    android:gravity="center"
-                    android:text="입력자"
-                    android:textColor="#fff" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="4.5">
-                <ListView
-                    android:id="@+id/listView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </ListView>
-
-            </LinearLayout>
 
 
+      <ImageView
+          android:id="@+id/viewImage"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="9.5"
+          android:background="@drawable/borderline">
 
-        </LinearLayout>
+      </ImageView>
 
     </LinearLayout>
 
@@ -247,21 +173,8 @@
         android:gravity="center"
         android:background="@color/white">
 
-        <TextView
-            android:id="@+id/txtSelectNo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_weight="0.4"
-            android:gravity="center"
-            android:paddingBottom="10dp"
-            android:text="✔선택한 앙카 번호:"
-            android:textColor="#000"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
         <Button
-            android:id="@+id/showImg"
+            android:id="@+id/cancelBtn1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/returnbtn"
@@ -269,25 +182,9 @@
             android:layout_marginRight="25dp"
             android:layout_marginLeft="25dp"
             android:layout_marginBottom="10dp"
-            android:layout_weight="0.8"
-            android:text="사진 확인하기"
-            android:padding="5dp"
-            android:textSize="20dp"
-           />
-        <Button
-            android:id="@+id/cancelBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/canclebtn"
-            android:onClick="onCancleButtonClick"
-            android:layout_marginRight="25dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="0.8"
             android:text="돌아가기"
             android:padding="5dp"
             android:textSize="20dp"
-            android:textColor="#474747"
             />
 
 

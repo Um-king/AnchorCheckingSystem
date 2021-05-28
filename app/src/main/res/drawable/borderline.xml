@@ -14,4 +14,13 @@
     <stroke
         android:width="0.5dp"
         android:color="@android:color/darker_gray" />
+
+    <corners android:bottomRightRadius="0dp"
+        android:bottomLeftRadius="0dp"
+        android:topRightRadius="15dp"
+        android:topLeftRadius="15dp"/> <!--둥근 정도-->
 </shape>
+
+
+
+

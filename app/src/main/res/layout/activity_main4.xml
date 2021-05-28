@@ -213,40 +213,21 @@
     <!--Body
         버튼 출력
     -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="12.5"
-        android:orientation="vertical"
         android:background="@color/white"
-        android:weightSum="13">
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
 
-        <!--Tablayout-->
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
+        <ListView
+            android:id="@+id/listView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_weight="1"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="#8C8C8C"
-            app:tabIndicatorHeight="2dp"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/black"
-            app:tabTextColor="#B8B8B8" />
-        <!--A6A6A6-->
-        <!--app:tabIndicatorColor="@color/black" : 현재 선택된 탭에 대한 색 지정-->
-        <!--app:tabSelectedTextColor="@color/black" : 현재 선택된 탭의 텍스트 색 지정-->
-        <!--app:tabMode="scrollable" : 탭을 고정할 건지 옆으로 스크롤 할건지-->
-        <!--app:tabGravity="fill" : 탭의 정렬방식을 선택-->
+            android:layout_height="match_parent">
 
-        <!--ViewPager-->
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="12" />
+        </ListView>
 
     </LinearLayout>
 
