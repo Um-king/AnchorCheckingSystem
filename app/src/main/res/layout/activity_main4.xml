@@ -158,7 +158,7 @@
                     android:layout_marginBottom="6dp"
                     android:background="@drawable/returnbtn"
                     android:gravity="center"
-                    android:onClick="onCancleButtonClick"
+                    android:onClick="onfinishButtonClick"
                     android:padding="5dp"
                     android:text="작업완료"
                     android:textSize="15dp"

@@ -2,36 +2,36 @@
 package com.example.kumkangchangyeong;
 
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.os.Bundle;
@@ -39,30 +39,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.tabs.TabLayout;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -76,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
     public Spinner spiner;
     public ArrayList<String> floorList;
     public int floorListIndex; // 현재 선택한 층 리스트의 인덱스번호를 저장
-    
+
+    public AnchorListViewAdapter listAdapter;
+    public ArrayAdapter spinnerAdapter;
 
     //리스트뷰
     public ArrayList<ArrayList<Integer>> viewList = new ArrayList<>();
@@ -84,7 +79,19 @@ public class MainActivity extends AppCompatActivity {
 
     public Button finishBtn; // 작업완료
 
+    SharedPreferences _pref;
+    Boolean isShortcut = false;//아이콘의 생성
 
+    /*
+   버전다운로드 관련 변수
+    */
+    DownloadManager mDm;
+    long mId = 0;
+    //Handler mHandler;
+    String serverVersion;
+    String downloadUrl;
+    ProgressDialog mProgressDialog;
+    //버전 변수 끝
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
@@ -92,7 +99,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         //setContentView(R.layout.activity_main3);
+
+        _pref = getSharedPreferences("kumkang", MODE_PRIVATE);//sharedPreferences 이름: "kumkang"에 저장
+        isShortcut = _pref.getBoolean("isShortcut", false);//"isShortcut"에 들어있는값을 가져온다.
+
+        if (!isShortcut)//App을 처음 깔고 시작했을때 이전에 깐적이 있는지없는지 검사하고, 이름과 아이콘을 설정한다.
+        {
+            addShortcut(this);
+        }
+
         setContentView(R.layout.activity_main4);
+
+        checkServerVersion();//버전을 체크-> 안쪽에 권한
 
         ////정보입력
         //ImageView imageView = (ImageView) findViewById(R.id.imgKumkang);
@@ -103,6 +121,20 @@ public class MainActivity extends AppCompatActivity {
         //        startActivity(intent);
         //    }
         //});
+
+        // 작업완료버튼 클릭 시 알림 출력
+        Button button1 = (Button) findViewById(R.id.finishBtn);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("작업 완료");
+                builder.setMessage("관리자에게 작업완료 보고를 전송하겠습니까?");
+                builder.setPositiveButton("전송", null);
+                builder.setNegativeButton("취소", null);
+                builder.create().show();
+            }
+        });
 
 
         // 현황버튼 클릭 시 현황 페이지로 이동
@@ -119,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         mContext = this;
         finishBtn = (Button) findViewById(R.id.finishBtn);
         listView = (ListView) findViewById(R.id.listView);
@@ -129,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
 
         spiner = (Spinner) findViewById(R.id.spinner1);
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, floorList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spiner.setAdapter(adapter);
+        spinnerAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, floorList);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spiner.setAdapter(spinnerAdapter);
 
         spiner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -149,6 +183,17 @@ public class MainActivity extends AppCompatActivity {
                     String spinerText = spiner.getSelectedItem().toString();
                     GetFloorAnchorCount(spinerText); // 해당 현장,동,층에 대한 앙카 개수를 가져온다.
                 }
+                else{
+                    viewList.clear();
+                    //listAdapter.notifyDataSetChanged();
+                    listAdapter = new AnchorListViewAdapter(MainActivity.this, R.layout.listview_button_row, viewList);
+                    listView.setAdapter(listAdapter);
+                    finishBtn.setVisibility(View.INVISIBLE);
+                    textView = (TextView) findViewById(R.id.txtSelectNo);
+                    textView.setText("✔선택한 앙카 번호: ");
+
+                }
+
             }
 
             @Override
@@ -162,6 +207,215 @@ public class MainActivity extends AppCompatActivity {
         // 카메라 버튼을 생성한다.
         //MakeCameraButton();
 
+    }
+
+    private void checkServerVersion() {
+        String url = getString(R.string.service_address) + "checkAppVersion";
+        ContentValues values = new ContentValues();
+        values.put("AppCode", getString(R.string.app_code));
+        CheckAppVersion cav = new CheckAppVersion(url, values);
+        cav.execute();
+
+    }
+
+
+    public class CheckAppVersion extends AsyncTask<Void, Void, String> {
+        String url;
+        ContentValues values;
+
+        CheckAppVersion(String url, ContentValues values) {
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //progress bar를 보여주는 등등의 행위
+            //startProgress();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String result;
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values);
+            return result; // 결과가 여기에 담깁니다. 아래 onPostExecute()의 파라미터로 전달됩니다.
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 통신이 완료되면 호출됩니다.
+            // 결과에 따른 UI 수정 등은 여기서 합니다
+
+            try {
+                if (result.equals("")) {
+                    Toast.makeText(MainActivity.this, "서버연결에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                    ActivityCompat.finishAffinity(MainActivity.this);
+                }
+                JSONArray jsonArray = new JSONArray(result);
+
+                JSONObject child = jsonArray.getJSONObject(0);
+                downloadUrl = child.getString("Message");
+                serverVersion = child.getString("ResultCode");
+
+                if (result.equals(""))
+                    finish();
+                else {
+                    if (Double.parseDouble(serverVersion) > getCurrentVersion()) {//좌측이 DB에 있는 버전
+                        newVersionDownload();
+                    } else {
+                        // finish();
+                    }
+                }
+                //CheckPermission();
+            } catch (Exception er) {
+
+            } finally {
+                //progressOFF();
+            }
+        }
+    }
+
+    private void newVersionDownload() {
+        new android.app.AlertDialog.Builder(MainActivity.this).setMessage("새로운 버전이 있습니다. 다운로드 할까요?")
+                .setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                mProgressDialog = ProgressDialog.show(MainActivity.this, "다운로드", "잠시만 기다려주세요");
+
+                Toast.makeText(MainActivity.this, downloadUrl, Toast.LENGTH_SHORT).show();
+
+                Uri uri = Uri.parse(downloadUrl);
+                DownloadManager.Request req = new DownloadManager.Request(uri);
+                req.setTitle("창녕공장 매립앙카 어플리케이션 다운로드");
+                req.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS, "KUMKANG.apk");
+
+                //req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, pathSegments.get(pathSegments.size() - 1));
+                //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+
+                req.setDescription("창녕공장 매립앙카 어플리케이션 설치파일을 다운로드 합니다.");
+                req.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+                mId = mDm.enqueue(req);
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+
+
+                registerReceiver(mDownComplete2, filter);
+
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "최신버전으로 업데이트 하시기 바랍니다.", Toast.LENGTH_LONG).show();
+                ActivityCompat.finishAffinity(MainActivity.this);
+            }
+        }).show();
+    }
+
+    /**
+     * 다운로드 완료 이후의 작업을 처리한다.(다운로드 파일 열기)
+     */
+    BroadcastReceiver mDownComplete2 = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+
+            Toast.makeText(context, "다운로드 완료", Toast.LENGTH_SHORT).show();
+
+            DownloadManager.Query query = new DownloadManager.Query();
+            query.setFilterById(mId);
+            Cursor cursor = mDm.query(query);
+            if (cursor.moveToFirst()) {
+
+                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                int status = cursor.getInt(columnIndex);
+
+                //String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
+                //int uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
+                if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                    String fileUri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                    openFile(fileUri);
+                }
+            }
+        }
+    };
+
+    protected void openFile(String uri) {
+
+        String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri)).toString());
+        String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        Intent open = new Intent(Intent.ACTION_VIEW);
+        open.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        /*if(open.getFlags()!=Intent.FLAG_GRANT_READ_URI_PERMISSION){//권한 허락을 안한다면
+            Toast.makeText(getBaseContext(), "Look!", Toast.LENGTH_LONG).show();
+            finish();
+        }*/
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//누가 버전 이상이라면 FileProvider를 사용한다.
+            uri = uri.substring(7);
+            File file = new File(uri);
+            Uri u = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);
+            open.setDataAndType(u, mimetype);
+        } else {
+            open.setDataAndType(Uri.parse(uri), mimetype);
+        }
+
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+
+
+        Toast.makeText(getBaseContext(), "설치 완료 후, 어플리케이션을 다시 시작하여 주십시요.", Toast.LENGTH_LONG).show();
+        startActivity(open);
+        // finish();//startActivity 전일까 후일까 잘판단
+
+    }
+
+    public int getCurrentVersion() {
+
+        int version;
+
+        try {
+            mDm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            PackageInfo i = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
+            version = i.versionCode;
+            //Users.CurrentVersion = version;
+
+            return version;
+
+        } catch (PackageManager.NameNotFoundException e) {
+            return 0;
+        }
+    }
+
+    private void addShortcut(Context context) {
+
+        Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
+        shortcutIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        shortcutIntent.setClassName(context, getClass().getName());
+        shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        //FLAG_ACTIVITY_NEW_TASK: 실행한 액티비티와 관련된 태스크가 존재하면 동일한 태스크내에서 실행하고, 그렇지 않으면 새로운 태스크에서 액티비티를 실행하는 플래그
+        //FLAG_ACTIVITY_RESET_TASK_IF_NEEDED: 사용자가 홈스크린이나 "최근 실행 액티비티목록"에서 태스크를 시작할 경우 시스템이 설정하는 플래그, 이플래그는 새로 태스크를
+        //시작하거나 백그라운드 태스크를 포그라운드로 가지고 오는 경우가 아니라면 영향을 주지 않는다, "최근 실행 액티비티 목록":  홈 키를 오랫동안 눌렀을 떄 보여지는 액티비티 목록
+
+        Intent intent = new Intent();
+        intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);//putExtra(이름, 실제값)
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "KUMKANG");
+        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.drawable.img_kumkang));
+        //intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.drawable.logo2));
+        //Intent.ShortcutIconResource.fromContext(context, R.drawable.img_kumkang);
+        intent.putExtra("duplicate", false);
+        intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+
+        sendBroadcast(intent);
+        SharedPreferences.Editor editor = _pref.edit();
+        editor.putBoolean("isShortcut", true);
+
+        editor.commit();
     }
 
 
@@ -286,8 +540,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        AnchorListViewAdapter adapter = new AnchorListViewAdapter(MainActivity.this, R.layout.listview_button_row, viewList);
-        listView.setAdapter(adapter);
+        listAdapter = new AnchorListViewAdapter(MainActivity.this, R.layout.listview_button_row, viewList);
+        listView.setAdapter(listAdapter);
 
     }
 
@@ -313,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
 
             String ImageFile = compressImage2(Base64.encodeToString(byteArray, Base64.DEFAULT));
 
-            Intent intent = new Intent(this, PotoListActivity.class);
+            Intent intent = new Intent(this, PhotoListActivity.class);
             intent.putExtra("img", ImageFile); // putExtra를 통해 호출한 액티비티로 사진 객체를 전송한다. -> 서버에 바이트형식으로 저장된다.
             intent.putExtra("imageView", bitmap); // putExtra를 통해 호출한 액티비티로 사진 객체를 전송한다. -> ImageView 출력을 위한 객체
             intent.putExtra("btnNo", btnNo); // 선택한 버튼의 id값을 넘긴다. -> 서버에 저장 시 버튼 색 변경을 위함
@@ -329,6 +583,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     public void ChangeButtonColor(int buttonNumber) {
 
         if(btnList.containsKey(String.valueOf(buttonNumber))) {
@@ -343,7 +598,11 @@ public class MainActivity extends AppCompatActivity {
                 if (savebtnList.size() == anchorCount) {
                     // 해당 층에 대해 모든 앙카를 등록했다면 완료된 작업으로 Master 정보를 수정한다(Flag : 0 -> 1)
                     UpdateEndAnchor();
+                    floorList.clear();
+                    floorList.add("-층 선택-");
+                    GetFloorDataAll();
 
+                    spiner.setSelection(floorListIndex);
                     finishBtn.setVisibility(View.VISIBLE); // 버튼 활성화
                 }
                 else
@@ -747,6 +1006,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
+       
     }
 
 

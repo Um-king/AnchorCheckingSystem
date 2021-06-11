@@ -12,7 +12,6 @@
                 android:width="1dp"
                 android:color="#252525" />
 
-            <solid android:color="#fff" />
         </shape>
     </item>
 </layer-list>

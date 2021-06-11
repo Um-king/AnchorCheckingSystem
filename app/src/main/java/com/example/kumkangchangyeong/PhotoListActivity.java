@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class PotoListActivity extends AppCompatActivity{
+public class PhotoListActivity extends AppCompatActivity{
 
     public int btnNo;
     public Bitmap bitmap;

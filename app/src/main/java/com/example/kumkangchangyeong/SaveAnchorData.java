@@ -1,8 +1,10 @@
 package com.example.kumkangchangyeong;
 
-public class SaveAnchorData {
+import java.io.Serializable;
 
-    public static String anchorNo = "";
-    public static String createDate = "";
-    public static String userName = "";
+public class SaveAnchorData implements Serializable {
+
+    public String anchorNo = "";
+    public String createDate = "";
+    public String userName = "";
 }

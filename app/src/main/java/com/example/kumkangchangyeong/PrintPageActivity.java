@@ -7,13 +7,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -27,6 +34,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -40,11 +48,29 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.pdmodel.PDPage;
+import com.tom_roush.pdfbox.pdmodel.PDPageContentStream;
+import com.tom_roush.pdfbox.pdmodel.common.PDRectangle;
+import com.tom_roush.pdfbox.pdmodel.font.PDFont;
+import com.tom_roush.pdfbox.pdmodel.font.PDType0Font;
+import com.tom_roush.pdfbox.pdmodel.font.PDType1Font;
+import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import com.tom_roush.pdfbox.util.Matrix;
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,11 +90,27 @@ public class PrintPageActivity extends AppCompatActivity{
 
     public ListView listView;
 
+
+    //////////pdf
+    public Button pdfBtn;
+
+    private File root;
+    private AssetManager assetManager;
+    private PDFont font;
+
+    ////////////
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_print);
         setContentView(R.layout.activity_print2);
+
+        pdfBtn = (Button) findViewById(R.id.filedownload);
 
         // 자신을 호출한 인텐트 얻어오기 -> 자신을 호출한 액티비티의 정보를 받는다.
         Intent intent = getIntent();
@@ -96,6 +138,9 @@ public class PrintPageActivity extends AppCompatActivity{
 
         // 해당 현장,동,층에 등록된 앙카를 가져온다.
         GetSaveAnchorData();
+
+        CreatePDF();
+        //ClickCreatePDF2();
     }
 
     public void GetSaveAnchorData() {
@@ -168,26 +213,14 @@ public class PrintPageActivity extends AppCompatActivity{
                     anchorData.userName = child.getString("userName");
 
 
-                    String a = anchorData.anchorNo;
-                    String b =  anchorData.createDate;
-                    String c =  anchorData.userName;
-
-
                     saveAnchorList.add(anchorData);
 
-                    String a1 = saveAnchorList.get(i).anchorNo;
-                    String b1 =  saveAnchorList.get(i).createDate;
-                    String c1 =  saveAnchorList.get(i).userName;
 
                     //if(anchorData.anchorNo == "0")
                     //    break;
                     //MakePrintData(anchorData.anchorNo, anchorData.createDate, anchorData.userName);
 
                 }
-
-                String a1 = saveAnchorList.get(0).anchorNo;
-                String b1 =  saveAnchorList.get(0).createDate;
-                String c1 =  saveAnchorList.get(0).userName;
 
                 TextView txtNotSaveAnchorCount = (TextView) findViewById(R.id.txtNotSaveAnchorCount);
                 int notSaveCount = Integer.parseInt(anchorCount) - saveAnchorList.size();
@@ -207,11 +240,6 @@ public class PrintPageActivity extends AppCompatActivity{
                 txtNotSaveAnchorCount.setText(spannableString);
 
 
-                for(int i = 0; i < saveAnchorList.size(); i++){
-                    String a = saveAnchorList.get(i).anchorNo;
-                    String b = saveAnchorList.get(i).createDate;
-                    String c = saveAnchorList.get(i).userName;
-                }
                 MakePrintData2(saveAnchorList);
 
                 //MakePrintData(); // 화면에 출력한다.
@@ -232,10 +260,17 @@ public class PrintPageActivity extends AppCompatActivity{
         ArrayList<SaveAnchorData> list = _list;
         PrintAnchorListViewAdapter adapter = new PrintAnchorListViewAdapter(PrintPageActivity.this, R.layout.listview_print_row, list);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView textView = (TextView) findViewById(R.id.txtSelectNo);
+                textView.setText("✔선택한 앙카 번호: " + saveAnchorList.get(position).anchorNo + "번");
+                anchorNumber = saveAnchorList.get(position).anchorNo;
+            }
+        });
     }
 
     public class PrintAnchorListViewAdapter extends ArrayAdapter {
-
         Context context;
         int layoutRsourceId;
         ArrayList data;
@@ -273,6 +308,8 @@ public class PrintPageActivity extends AppCompatActivity{
 
             SaveAnchorData anchor = (SaveAnchorData) data.get(position);
 
+            String num = anchor.anchorNo;
+
             TextView textViewAnchor = (TextView) row.findViewById(R.id.txt1);
             TextView textViewAnchor2 = (TextView) findViewById(R.id.anchorNumber);
             int width = textViewAnchor2.getWidth();
@@ -290,7 +327,6 @@ public class PrintPageActivity extends AppCompatActivity{
             width = textViewUser2.getWidth();
             textViewUser.setWidth(width);
             textViewUser.setText(anchor.userName);
-
 
             return row;
         }
@@ -488,6 +524,162 @@ public class PrintPageActivity extends AppCompatActivity{
                 Log.e("에러", "비트맵 에러 " + ex.getMessage().toString());
             }
         }
+
+
+    }
+
+    // PDF를 만든다.
+    private void CreatePDF(){
+        pdfBtn.setOnClickListener(new View.OnClickListener(){
+
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+
+                // 타이틀을 출력한다(첫 페이지)
+                int A4_width = (int) PDRectangle.A4.getWidth();
+                int A4_height = (int) PDRectangle.A4.getHeight();
+                Bitmap bitmap, scaledbmp, logoBitmap, logoScaledbmp, bgBitmap, bgScaledbmp;
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pdftitle);
+                scaledbmp = Bitmap.createScaledBitmap(bitmap, 900, 300, false); // 사이즈
+
+                logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo);
+                logoScaledbmp = Bitmap.createScaledBitmap(logoBitmap, 600, 200, false);
+
+                bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.b2);
+                bgScaledbmp = Bitmap.createScaledBitmap(bgBitmap, 1200, 200, false);
+
+                PdfDocument pdfDocument = new PdfDocument();
+                Paint paint = new Paint();
+                Paint titlePaint = new Paint();
+
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(1200, 2000, 1).create();
+                PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+                Canvas canvas = page.getCanvas();
+
+                paint.setTextAlign(Paint.Align.CENTER);
+                canvas.drawBitmap(scaledbmp,150,350,paint); // scaledbmp의 이미지를 0,50에 위치시킨다.
+//                titlePaint.setTextAlign(Paint.Align.CENTER);
+//                titlePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+//                titlePaint.setTextSize(70);
+//                canvas.drawText("금강공업", 1200/2, 150, paint);
+
+                //paint .setColor(Color.rgb(0, 113, 188));
+                paint.setTextSize(40f);
+                paint.setStrokeWidth(10);
+                paint.setTextAlign(Paint.Align.CENTER);
+                canvas.drawText("현장: 금강공업(주) 서울사무소", 1200/2, 1000, paint);
+
+                paint.setTextSize(40f);
+                paint.setStrokeWidth(10);
+                paint.setTextAlign(Paint.Align.CENTER);
+                canvas.drawText("담당자: 엄 영 철", 1200/2, 1070, paint);
+
+                paint.setTextSize(40f);
+                paint.setStrokeWidth(10);
+                paint.setTextAlign(Paint.Align.CENTER);
+                canvas.drawText("Tel) 010-9655-7322", 1200/2, 1140, paint);
+
+                canvas.drawBitmap(logoScaledbmp,300,1500,paint); // scaledbmp의 이미지를 0,50에 위치시킨다.
+
+                pdfDocument.finishPage(page);
+
+
+                // 테이블 표를 출력한다.
+                PdfDocument.PageInfo pageInfo1 = new PdfDocument.PageInfo.Builder(1200, 2000, 2).create();
+                PdfDocument.Page page1 = pdfDocument.startPage(pageInfo1);
+                Canvas canvas1 = page1.getCanvas();
+
+
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(2);
+                canvas1.drawRect(100,230,1100,1740, paint);
+
+                paint.setStyle(Paint.Style.FILL);
+                canvas1.drawText("번호", 250, 280, paint);
+                canvas1.drawText("등록 날짜", 600, 280, paint);
+                canvas1.drawText("작업자", 950, 280, paint);
+                canvas1.drawLine(400,230,400,1740, paint);
+                canvas1.drawLine(800,230,800,1740, paint);
+                canvas1.drawLine(100,300,1100,300, paint);
+
+
+                int y = 300;
+                paint.setTextSize(30f);
+                for(int i = 0; i < saveAnchorList.size(); i++){
+
+                    String[] date = saveAnchorList.get(i).createDate.split(" ");
+                    String[] time = date[2].split(":");
+                    String str = "AM";
+                    if(date[1].equals("오후"))
+                        str = "PM";
+                    String createDate = date[0] + " " + time[0] + ":" + time[1] + " " + str;
+                    canvas1.drawText(saveAnchorList.get(i).anchorNo, 250, y +30, paint);
+                    canvas1.drawText(createDate, 600, y +30, paint);
+                    //canvas1.drawText(saveAnchorList.get(i).createDate, 600, y +30, paint);
+                    canvas1.drawText(saveAnchorList.get(i).userName, 950, y +30, paint);
+
+                    y+=48;
+
+                }
+
+
+                // 원본
+//                paint.setStyle(Paint.Style.STROKE);
+//                paint.setStrokeWidth(2);
+//                canvas1.drawRect(150,100,1050,1700, paint);
+//
+//                paint.setStyle(Paint.Style.FILL);
+//                canvas1.drawText("번호", 300, 150, paint);
+//                canvas1.drawText("등록 날짜", 600, 150, paint);
+//                canvas1.drawText("작업자", 900, 150, paint);
+//                canvas1.drawLine(450,100,450,1700, paint);
+//                canvas1.drawLine(750,100,750,1700, paint);
+//                canvas1.drawLine(150,180,1050,180, paint);
+
+
+
+                canvas1.drawBitmap(bgScaledbmp,0,0,paint);
+
+                logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo);
+                logoScaledbmp = Bitmap.createScaledBitmap(logoBitmap, 200, 100, false);
+                canvas1.drawBitmap(logoScaledbmp,50,1800,paint);
+
+                pdfDocument.finishPage(page1);
+
+//                PdfDocument.PageInfo pageInfo2 = new PdfDocument.PageInfo.Builder(1200, 2000, 3).create();
+//                PdfDocument.Page page2 = pdfDocument.startPage(pageInfo2);
+//                Canvas canvas2 = page2.getCanvas();
+//                canvas2.drawText("test1", 1200/2, 1140, paint);
+//                pdfDocument.finishPage(page2);
+
+
+                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/test.pdf");
+
+//                PDDocument document = new PDDocument();
+//                String path = file.getAbsolutePath();
+//                try {
+//                    Toast.makeText(PrintPageActivity.this, path+"에 PDF 파일로 저장했습니다.", Toast.LENGTH_LONG).show();
+//                    document.save(path);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
+                try{
+                    pdfDocument.writeTo(new FileOutputStream(file));
+                    Toast.makeText(PrintPageActivity.this, file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(PrintPageActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(PrintPageActivity.this, "에러", Toast.LENGTH_SHORT).show();
+                }
+
+
+                pdfDocument.close();
+            }
+        });
     }
 
 
