@@ -66,11 +66,6 @@ public class PrintPageActivity extends AppCompatActivity{
 
     //////////pdf
     public Button pdfBtn;
-
-    private File root;
-    private AssetManager assetManager;
-    private PDFont font;
-
     ////////////
 
 
@@ -448,20 +443,20 @@ public class PrintPageActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
 
-                int recHeight = (48 * saveAnchorList.size()) + 330;
+                int recHeight = (48 * saveAnchorList.size()) + 330; // 출력 양에따라 테이블 크기를 설정한다. -> 30개가 넘어가면 그냥 고정값으로 설정해야한다. (추가작업 필요)
 
                 // 타이틀을 출력한다(첫 페이지)
                 //int A4_width = (int) PDRectangle.A4.getWidth();
                 //int A4_height = (int) PDRectangle.A4.getHeight();
                 Bitmap bitmap, scaledbmp, logoBitmap, logoScaledbmp, bgBitmap, bgScaledbmp;
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pdftitle);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pdftitle); // 첫 표지
                 scaledbmp = Bitmap.createScaledBitmap(bitmap, 900, 300, false); // 사이즈
 
-                logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo);
+                logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo); // 첫 표지 로고
                 logoScaledbmp = Bitmap.createScaledBitmap(logoBitmap, 600, 200, false);
 
                 //bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.b2);
-                bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.viewsubtitle);
+                bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.viewsubtitle); //페이지 상단 바
                 bgScaledbmp = Bitmap.createScaledBitmap(bgBitmap, 1200, 130, false);
 
                 PdfDocument pdfDocument = new PdfDocument();
@@ -533,7 +528,7 @@ public class PrintPageActivity extends AppCompatActivity{
 
                         canvas1.drawBitmap(bgScaledbmp,0,0,paint);
 
-                        logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo);
+                        logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kumkanglogo); // 출력 페이지 하단 로고
                         logoScaledbmp = Bitmap.createScaledBitmap(logoBitmap, 200, 100, false);
                         canvas1.drawBitmap(logoScaledbmp,50,1830,paint);
 
@@ -584,7 +579,7 @@ public class PrintPageActivity extends AppCompatActivity{
                 //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/test.pdf");
                 //File file = new File(Environment.getExternalStorageDirectory(), "/test.pdf");
 
-                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "test" + floor + ".pdf");
+                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "test" + floor + ".pdf"); // 어플삭제 시 그동안 다운로드한 pdf파일도 같이 지워진다.
                 //File file = new File(getExternalFilesDir(null), "test.pdf");
 
 
@@ -609,11 +604,8 @@ public class PrintPageActivity extends AppCompatActivity{
                     Toast.makeText(PrintPageActivity.this, "에러", Toast.LENGTH_SHORT).show();
                 }
 
-
                 pdfDocument.close();
             }
         });
     }
-
-
 }
